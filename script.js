@@ -17,8 +17,11 @@ messageBox.style.cssText = `
     top: 20px;
     left: 50%;
     transform: translateX(-50%) translateY(-20px);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
     padding: 15px 25px;
     border-radius: 8px;
     font-size: 18px;
@@ -37,13 +40,13 @@ function showMessage(text) {
     setTimeout(() => {
         messageBox.style.transform = 'translateX(-50%) translateY(-20px)';
         messageBox.style.opacity = '0';
-    }, 10000);
+    }, 600000);
 }
 
 // 更新按钮样式的函数
 function updateButtonStyles(button, isExpand, clickCount) {
     const screenWidth = window.innerWidth;
-    const scaleRatio = screenWidth > 1024 ? 0.25 : 0.15;
+    const scaleRatio = screenWidth > 1024 ? 0.5 : 0.3;
     const scale = isExpand ? 1 + (clickCount * scaleRatio) : 1 - (clickCount * 0.15);
     
     button.style.transform = `scale(${scale})`;
@@ -72,6 +75,96 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// 创建烟花画布
+const fireworksCanvas = document.createElement('canvas');
+fireworksCanvas.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+`;
+document.body.appendChild(fireworksCanvas);
+const ctx = fireworksCanvas.getContext('2d');
+
+// 设置画布尺寸
+function resizeCanvas() {
+    fireworksCanvas.width = window.innerWidth;
+    fireworksCanvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// 烟花粒子类
+class Particle {
+    constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.radius = Math.random() * 4 + 2;
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = Math.random() * 8 + 3;
+        this.dx = Math.cos(angle) * velocity;
+        this.dy = Math.sin(angle) * velocity;
+        this.alpha = 1;
+        this.decay = Math.random() * 0.01 + 0.01;
+    }
+
+    update() {
+        this.x += this.dx;
+        this.y += this.dy;
+        this.dy += 0.1; // 重力效果
+        this.alpha -= this.decay;
+        return this.alpha > 0;
+    }
+
+    draw() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+// 创建烟花效果
+function createFirework(x, y) {
+    const particles = [];
+    const colors = ['#ff0', '#f0f', '#0ff', '#ff4081', '#00e676', '#FFA726', '#E91E63', '#9C27B0', '#3F51B5', '#03A9F4'];
+    
+    for (let i = 0; i < 200; i++) {
+        particles.push(new Particle(
+            x,
+            y,
+            colors[Math.floor(Math.random() * colors.length)]
+        ));
+    }
+
+    function animate() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0)';
+        ctx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+    
+        particles.forEach((particle, index) => {
+            if (particle.update()) {
+                particle.draw();
+            } else {
+                particles.splice(index, 1);
+            }
+        });
+    
+        if (particles.length > 0) {
+            requestAnimationFrame(animate);
+        }
+    }
+
+    animate();
+}
+
+// 修改左按钮点击事件
 leftBtn.addEventListener('click', function() {
     if (!hasShownLeftMessage) {
         updateButtonStyles(this, true, 1);
@@ -83,6 +176,31 @@ leftBtn.addEventListener('click', function() {
         ripple.className = 'ripple';
         this.appendChild(ripple);
         setTimeout(() => ripple.remove(), 1000);
+
+        // 添加多个烟花效果
+        const numFireworks = 10;
+        const interval = 200;
+        
+        // 持续创建新的烟花
+        const createRandomFirework = () => {
+            const x = Math.random() * window.innerWidth;
+            const y = window.innerHeight - Math.random() * 300;
+            createFirework(x, y);
+            
+            // 随机间隔时间，范围在400-1200ms之间
+            const nextInterval = Math.random() * 800 + 400;
+            setTimeout(createRandomFirework, nextInterval);
+        };
+        
+        createRandomFirework(); // 烟花之间的时间间隔
+
+        for (let i = 0; i < numFireworks; i++) {
+            setTimeout(() => {
+                const x = Math.random() * window.innerWidth;
+                const y = window.innerHeight - Math.random() * 200;
+                createFirework(x, y);
+            }, i * interval);
+        }
     }
 });
 
