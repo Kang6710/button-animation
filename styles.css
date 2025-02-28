@@ -1,0 +1,66 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container {
+    width: 100vw;
+    height: 100vh;
+    background-image: url('background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.button-container {
+    display: flex;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.btn {
+    padding: 20px 40px;
+    font-size: clamp(16px, 3vw, 24px);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.left-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.right-btn {
+    background-color: #2196F3;
+    color: white;
+}
+
+.expand {
+    transform: scale(20);
+    position: fixed;
+    z-index: 100;
+}
+
+.shrink {
+    transform: scale(0);
+    opacity: 0;
+}
+
+@media (max-width: 768px) {
+    .button-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn {
+        padding: 15px 30px;
+    }
+}
