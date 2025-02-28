@@ -3,11 +3,11 @@
     padding: 0;
     box-sizing: border-box;
 }
-
+/* 其他样式保持不变 */
 .container {
     width: 100vw;
     height: 100vh;
-    background-image: url('background.jpg');
+    background-image: url('./background.jpg');  /* 修改图片路径 */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -16,7 +16,7 @@
     align-items: center;
     overflow: hidden;
 }
-
+/* 其他样式保持不变 */
 .button-container {
     display: flex;
     gap: 20px;
